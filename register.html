@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portal Residentes | Registro</title>
+    <link rel="icon" type="image/x-icon"
+        href="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true">
+    <title>FiberHub v2.0 | Registro de Residente</title>
     <link rel="stylesheet" href="./style.css" />
 </head>
 
@@ -27,14 +29,16 @@
         </script>
         <div class="glass-panel fade-in" style="width: 100%; max-width: 420px;">
             <div style="text-align: center; margin-bottom: 2rem;">
-                <h2 style="color: var(--primary);">Crear Cuenta</h2>
-                <p style="color: var(--text-muted);">Registre su departamento</p>
+                <h1 class="nebula-title" style="font-size: 2.5rem;">FiberHub</h1>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">Registre su departamento <span
+                        class="nebula-v2-badge">v2.0</span></p>
             </div>
 
             <form id="registerForm">
                 <div class="form-group">
                     <label class="form-label" for="regUsername">Usuario / Depto</label>
-                    <input type="text" id="regUsername" class="form-input" placeholder="Ej. TorreB-303" required />
+                    <input type="text" id="regUsername" class="form-input" placeholder="Ej. Departamento1-101"
+                        required />
                 </div>
 
                 <div class="form-group">
@@ -42,8 +46,27 @@
                     <input type="password" id="regPassword" class="form-input" placeholder="••••••••" required />
                 </div>
 
-                <!-- Role Selection Removed - Default to Resident -->
-                <input type="hidden" name="role" value="resident">
+                <div class="form-group">
+                    <label class="form-label" for="regConfirmPassword">Confirmar Contraseña</label>
+                    <input type="password" id="regConfirmPassword" class="form-input" placeholder="••••••••" required />
+                </div>
+
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label class="form-label" for="regRole">Tipo de Cuenta</label>
+                    <select id="regRole" class="form-input" style="cursor: pointer;">
+                        <option value="resident">Residente</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+
+                <!-- Admin Key Field (Hidden by default) -->
+                <div class="form-group" id="adminKeyGroup" style="display: none;">
+                    <label class="form-label" for="adminKey" style="color: var(--accent);">Clave de
+                        Administrador</label>
+                    <input type="password" id="adminKey" class="form-input" placeholder="Ingrese la clave secreta" />
+                    <small style="color: var(--text-muted); font-size: 0.75rem;">Solo personal autorizado</small>
+                </div>
 
                 <div id="regError"
                     style="color: var(--error); font-size: 0.875rem; margin-bottom: 1rem; display: none;"></div>
@@ -53,9 +76,13 @@
                 </button>
             </form>
 
-            <div style="text-align: center; margin-top: 1.5rem;">
-                <a href="./index.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">
+            <div style="text-align: center; margin-top: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="./index.html"
+                    style="color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: 600;">
                     ← Volver al login
+                </a>
+                <a href="./landing.html" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem;">
+                    ¿Qué es FiberHub? Explorar funciones ✨
                 </a>
             </div>
         </div>
@@ -66,6 +93,19 @@
         const form = document.getElementById('registerForm');
         const errorMsg = document.getElementById('regError');
         const submitBtn = form.querySelector('button[type="submit"]');
+        const roleSelect = document.getElementById('regRole');
+        const adminKeyGroup = document.getElementById('adminKeyGroup');
+
+        // Toggle Admin Key field
+        roleSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'admin') {
+                adminKeyGroup.style.display = 'block';
+                document.getElementById('adminKey').required = true;
+            } else {
+                adminKeyGroup.style.display = 'none';
+                document.getElementById('adminKey').required = false;
+            }
+        });
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -79,7 +119,32 @@
 
             const user = document.getElementById('regUsername').value;
             const pass = document.getElementById('regPassword').value;
-            const role = 'resident'; // Force resident role
+            const confirmPass = document.getElementById('regConfirmPassword').value;
+            const role = roleSelect.value;
+            const adminKey = document.getElementById('adminKey').value;
+
+            // --- VALIDATION ---
+            if (pass !== confirmPass) {
+                errorMsg.textContent = 'Las contraseñas no coinciden.';
+                errorMsg.style.display = 'block';
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // --- ADMIN KEY VALIDATION ---
+            // Cambia 'RESIDENCIAL2024' por la clave que tú quieras usar.
+            const SECRET_ADMIN_KEY = 'RESIDENCIAL2024';
+
+            if (role === 'admin') {
+                if (adminKey !== SECRET_ADMIN_KEY) {
+                    errorMsg.textContent = 'Clave de administrador incorrecta.';
+                    errorMsg.style.display = 'block'; // Ensure error is visible
+                    submitBtn.textContent = originalBtnText; // Reset button text
+                    submitBtn.disabled = false; // Re-enable button
+                    return; // Stop registration
+                }
+            }
 
             // Small artificial delay for UX
             await new Promise(r => setTimeout(r, 800));
@@ -93,7 +158,7 @@
                 submitBtn.style.background = 'var(--success)';
 
                 setTimeout(() => {
-                    if (result.user.role === 'admin') {
+                    if (result.user.user_metadata.role === 'admin') {
                         window.location.href = './admin.html';
                     } else {
                         window.location.href = './dashboard.html';

@@ -75,9 +75,87 @@ export const notify = {
         if (Notification.permission === 'granted') {
             new Notification(title, {
                 body: body,
-                icon: icon, // Optional
-                silent: true // We handle sound manually via AudioContext
+                icon: icon,
+                silent: true
             });
         }
-    }
+    },
+
+    // UI Toasts (On-page notifications)
+    toast(message, type = 'info') {
+        const container = document.getElementById('toast-container') || this.createToastContainer();
+        const toast = document.createElement('div');
+
+        const colors = {
+            success: 'var(--success)',
+            error: 'var(--error)',
+            info: 'var(--accent)',
+            warning: 'var(--warning)'
+        };
+
+        toast.style.cssText = `
+            background: rgba(9, 9, 11, 0.9);
+            backdrop-filter: blur(10px);
+            border-left: 4px solid ${colors[type] || colors.info};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease-out forwards;
+            min-width: 250px;
+            pointer-events: auto;
+        `;
+
+        const icons = {
+            success: '✅',
+            error: '❌',
+            info: 'ℹ️',
+            warning: '⚠️'
+        };
+
+        toast.innerHTML = `<span>${icons[type] || '🔔'}</span> <span>${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-in forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    },
+
+    createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        container.style.cssText = `
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            pointer-events: none;
+        `;
+        document.body.appendChild(container);
+
+        // Add animations if not present
+        if (!document.getElementById('toast-animations')) {
+            const style = document.createElement('style');
+            style.id = 'toast-animations';
+            style.textContent = `
+                @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                @keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+            `;
+            document.head.appendChild(style);
+        }
+        return container;
+    },
+
+    success(m) { this.toast(m, 'success'); },
+    info(m) { this.toast(m, 'info'); },
+    error(m) { this.toast(m, 'error'); this.playSendSound(); },
+    warning(m) { this.toast(m, 'warning'); }
 };

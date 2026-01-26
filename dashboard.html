@@ -4,17 +4,22 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portal Residentes | Dashboard</title>
+    <link rel="icon" type="image/x-icon"
+        href="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true">
+    <title>FiberHub v2.0 | Dashboard Residente</title>
     <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="container">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
             <div class="logo">
-                🏢 <span>Residencial</span>WiFi
+                <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true"
+                    style="width: 35px; height: 35px; object-fit: contain;" alt="FiberHub Logo" title="FiberHub">
+                FiberHub<span>Digital</span><span class="nebula-v2-badge">v2.0</span>
             </div>
+
             <div class="nav-profile-container">
                 <div style="text-align: right; line-height: 1.2;">
                     <div id="userNameDisplay" style="font-weight: 600;">Cargando...</div>
@@ -31,17 +36,25 @@
                     </svg>
                 </div>
                 <button id="logoutBtn" class="btn" style="padding: 0.5rem; margin-left: 0.5rem;" title="Cerrar Sesión">
-                    ⬅️
+                    ⬅️ Cerrar Sesión
                 </button>
             </div>
+
+            <!-- Hamburger Responsive -->
+            <div class="menu-toggle" id="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="menu-overlay" id="menu-overlay"></div>
         </div>
     </nav>
 
+
     <!-- Alias Modal -->
-    <div id="aliasModal"
-        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center;">
-        <div class="glass-panel" style="width: 90%; max-width: 350px;">
-            <h3 style="margin-bottom: 1rem;">Configurar Alias</h3>
+    <div id="aliasModal" class="modal-overlay">
+        <div class="glass-panel modal-content-wrap" style="max-width: 380px;">
+            <h3 style="margin-bottom: 1.5rem;">Configurar Alias</h3>
             <input type="text" id="aliasInput" class="form-input" placeholder="Ej. Familia González"
                 style="margin-bottom: 1rem;">
             <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
@@ -59,7 +72,7 @@
             <!-- Payment Status Card -->
             <article class="glass-panel" style="padding: 2rem;">
                 <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-                    📅 Renta y Servicios
+                    📅 Renta y Servicios de Internet
                 </h3>
                 <div style="margin-bottom: 1.5rem;">
                     <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem;">Próximo vencimiento
@@ -74,29 +87,32 @@
             </article>
 
             <!-- History Modal -->
-            <div id="historyModal"
-                style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; align-items: center; justify-content: center;">
-                <div class="glass-panel" style="width: 90%; max-width: 500px;">
+            <div id="historyModal" class="modal-overlay">
+                <div class="glass-panel modal-content-wrap"
+                    style="max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;">
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; position: sticky; top: 0; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(10px); padding-bottom: 1rem; z-index: 5;">
                         <h3 style="margin: 0;">Historial de Pagos</h3>
                         <button id="closeHistoryBtn"
                             style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.2s;">&times;</button>
                     </div>
 
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid var(--border); text-align: left;">
-                                <th style="padding: 0.5rem;">Periodo</th>
-                                <th style="padding: 0.5rem;">Fecha</th>
-                                <th style="padding: 0.5rem;">Monto</th>
-                                <th style="padding: 0.5rem;">Estado</th>
-                            </tr>
-                        </thead>
-                        <tbody id="historyTableBody">
-                            <!-- Data -->
-                        </tbody>
-                    </table>
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid var(--border); text-align: left;">
+                                    <th style="padding: 0.5rem;">Periodo</th>
+                                    <th style="padding: 0.5rem;">Fecha</th>
+                                    <th style="padding: 0.5rem;">Monto</th>
+                                    <th style="padding: 0.5rem;">Estado</th>
+                                    <th style="padding: 0.5rem; text-align: center;">Recibo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <!-- Data -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -113,51 +129,154 @@
                     <div class="speed-bar-bg">
                         <div class="speed-bar-fill" id="speedBar"></div>
                     </div>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); text-align: right;">Fibra Óptica Dedicada</p>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Fibra Óptica Dedicada</p>
+
                 </div>
             </article>
 
-            <!-- WiFi Details Card -->
-            <article class="glass-panel" style="padding: 2rem; grid-column: span 2;">
-                <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
-                    📡 Detalles WiFi
-                </h3>
+            <!-- Speed Test Modal (Responsive) -->
+            <!-- Speed Test Modal -->
+            <div id="speedTestModal" class="modal-overlay">
+                <div class="glass-panel modal-content-wrap"
+                    style="max-width: 420px; text-align: center; padding: 2rem;">
+                    <h3 style="margin-bottom: 2rem; color: var(--text-main); font-size: 1.5rem;">Midiendo Velocidad</h3>
 
-                <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
-                    <!-- QR Code -->
-                    <div style="background: white; padding: 1rem; border-radius: 12px; height: fit-content;">
-                        <img id="dashWifiQr" src="" alt="Escanee para conectar"
-                            style="width: 140px; height: 140px; object-fit: contain; display: none;">
-                        <div id="dashQrPlaceholder"
-                            style="width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; color: #333; font-size: 0.8rem;">
-                            No configurado
-                        </div>
+                    <!-- Gauge Container (Simple) -->
+                    <div
+                        style="position: relative; width: 250px; height: 125px; margin: 0 auto 2rem auto; overflow: hidden;">
+
+                        <!-- Gauge Background -->
+                        <div style="
+                            position: absolute;
+                            bottom: 0; left: 0;
+                            width: 250px; height: 250px;
+                            border-radius: 50%;
+                            border: 20px solid rgba(255,255,255,0.1);
+                            box-sizing: border-box;
+                        "></div>
+
+                        <!-- Gauge Fill -->
+                        <div id="gaugeFill" style="
+                            position: absolute;
+                            bottom: 0; left: 0;
+                            width: 250px; height: 250px;
+                            border-radius: 50%;
+                            border: 20px solid transparent;
+                            border-top-color: var(--accent);
+                            border-right-color: var(--accent);
+                            box-sizing: border-box;
+                            transform: rotate(-135deg); 
+                            transform-origin: center;
+                            transition: transform 0.1s ease-out;
+                        "></div>
+
+                        <!-- Needle -->
+                        <div id="gaugeNeedle" style="
+                            position: absolute;
+                            bottom: 0; left: 125px;
+                            width: 4px; height: 110px;
+                            background: white;
+                            transform-origin: bottom center;
+                            transform: rotate(-90deg);
+                            transition: transform 0.2s cubic-bezier(0.1, 1.5, 0.4, 1);
+                            z-index: 10;
+                        "></div>
                     </div>
 
-                    <!-- Text Details -->
-                    <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
-                        <div>
-                            <span
-                                style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Nombre
-                                de Red (SSID)</span>
-                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);" id="dashSsid">...
-                            </div>
-                        </div>
-                        <div>
-                            <span
-                                style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Contraseña</span>
-                            <div
-                                style="font-size: 1.25rem; font-family: monospace; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); display: inline-block;">
-                                <span id="dashPass">...</span>
-                            </div>
-                        </div>
-                        <p style="font-size: 0.85rem; opacity: 0.7; margin: 0;">
-                            📷 Escanee el código QR con su celular para conectarse automáticamente.
-                        </p>
+                    <!-- Speed Display -->
+                    <div style="margin-bottom: 2rem;">
+                        <span id="liveSpeedVal"
+                            style="font-size: 4rem; font-weight: 800; color: var(--accent); font-family: monospace;">0.0</span>
+                        <div style="color: var(--text-muted); font-size: 1rem;">MBPS</div>
                     </div>
+
+
+
+                    <button id="closeSpeedTest" class="btn"
+                        style="border: 1px solid var(--border); background: transparent; padding: 0.5rem 2rem; display: none;">
+                        Cerrar
+                    </button>
+                    <p id="testStatus" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">Iniciando
+                        prueba...</p>
                 </div>
-            </article>
+            </div>
+
         </div>
+
+
+
+        <!-- WiFi Details Card -->
+        <article class="glass-panel" style="padding: 2rem; grid-column: span 2;">
+            <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+                📡 Detalles WiFi
+            </h3>
+
+            <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+                <!-- QR Code -->
+                <div style="background: white; padding: 1rem; border-radius: 12px; height: fit-content;">
+                    <img id="dashWifiQr" src="" alt="Escanee para conectar"
+                        style="width: 140px; height: 140px; object-fit: contain; display: none;">
+                    <div id="dashQrPlaceholder"
+                        style="width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; color: #333; font-size: 0.8rem;">
+                        No configurado
+                    </div>
+                </div>
+
+                <!-- Text Details -->
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                    <div>
+                        <span
+                            style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Nombre
+                            de Red (SSID)</span>
+                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);" id="dashSsid">
+                            ...
+                        </div>
+                    </div>
+                    <div>
+                        <span
+                            style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Contraseña</span>
+                        <div
+                            style="font-size: 1.25rem; font-family: monospace; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); display: inline-block;">
+                            <span id="dashPass">...</span>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.85rem; opacity: 0.7; margin: 0;">
+                        📷 Escanee el código QR con su celular para conectarse automáticamente.
+                    </p>
+                </div>
+            </div>
+        </article>
+        </div>
+
+        <!-- Especial Services Section -->
+        <section class="glass-panel" style="margin-top: 3rem; margin-bottom: 3rem; padding: 2rem;">
+            <h3
+                style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; justify-content: center;">
+                ✨ Servicios Especiales
+            </h3>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <a href="https://www.clarovideo.com/mexico/landing" target="_blank" rel="noopener"
+                    style="transition: transform 0.3s ease;">
+                    <img src="https://i.blogs.es/442c56/claro-/450_1000.jpg" alt="Claro Video"
+                        style="width: 250px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);"
+                        onmouseover="this.parentElement.style.transform='scale(1.05)'"
+                        onmouseout="this.parentElement.style.transform='scale(1)'">
+                </a>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <a href="https://www.netflix.com/mx/" target="_blank" rel="noopener"
+                    style="transition: transform 0.3s ease;">
+                    <img src="https://tse2.mm.bing.net/th/id/OIP.USRGLnk6iOi0Hakpo6VLMgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
+                        alt="Netflix"
+                        style="width: 250px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);"
+                        onmouseover="this.parentElement.style.transform='scale(1.05)'"
+                        onmouseout="this.parentElement.style.transform='scale(1)'">
+                </a>
+            </div>
+        </section>
 
         <!-- Messages Section -->
         <section class="glass-panel" style="margin-bottom: 2rem; padding: 2rem;">
@@ -208,6 +327,29 @@
     </main>
 
     <script type="module" src="./dashboard.js"></script>
+    <script>
+        // Hamburger Menu Logic
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('.nav-profile-container');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                navMenu.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+            });
+        }
+
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+        }
+    </script>
+
 </body>
 
 </html>

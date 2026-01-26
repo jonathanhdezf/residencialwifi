@@ -149,20 +149,19 @@ export const dbData = {
         return data;
     },
 
-    async markMessagesRead(userId) {
-        // Mark all messages FROM resident AS read (when admin opens chat)
-        // OR all messages FROM admin AS read (when resident opens chat) - logic depends on who calls it.
-        // The existing store.js logic was:
-        // "Mark all messages FROM resident AS read" implies this is called by Admin.
-
-        // Let's assume this is Admin clearing resident notifications.
-        await supabase
+    async markMessagesRead(userId, senderRole = 'resident') {
+        // Por defecto, el administrador marca como leídos los mensajes del RESIDENTE
+        // Si el residente llama a esta función, marcará como leídos los del ADMIN
+        const { error } = await supabase
             .from('messages')
             .update({ read: true })
             .eq('user_id', userId)
-            .eq('sender_role', 'resident')
+            .eq('sender_role', senderRole)
             .eq('read', false);
+
+        if (error) console.error('Error marking messages as read:', error);
     },
+
 
     // History
     async addHistoryItem(userId, item) {
@@ -196,15 +195,18 @@ export const dbData = {
     },
 
     async deleteUser(userId) {
-        // Deleting user from Auth is tricky from client (requires Service Role).
-        // But we can delete from 'profiles' which might cascade if set up, 
-        // OR we just assume we can't fully delete auth user without Edge Function.
-        // For now, we'll try deleting from profiles.
-        const { error } = await supabase
-            .from('profiles')
-            .delete()
-            .eq('id', userId);
+        // Llamamos a la función RPC personalizada que creamos en Supabase
+        // Esta función tiene 'SECURITY DEFINER' y puede borrar de auth.users.
+        // Al borrar de auth.users, el cascade borrará perfiles, mensajes e historial.
+        const { error } = await supabase.rpc('delete_user_by_id', { user_uuid: userId });
 
-        if (error) alert('Note: User profile deleted, but Auth account may remain requires Admin API.');
+        if (error) {
+            console.error('Error deleting user via RPC:', error);
+            // Intentar borrar al menos el perfil como respaldo (aunque dejará al usuario en Auth)
+            const { error: profileError } = await supabase.from('profiles').delete().eq('id', userId);
+            return !profileError;
+        }
+        return true;
     }
+
 };

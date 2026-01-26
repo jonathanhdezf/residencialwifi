@@ -4,40 +4,52 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Portal Admin | Control Panel</title>
+    <link rel="icon" type="image/x-icon"
+        href="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true">
+    <title>FiberHub v2.0 | Dashboard Administrativo</title>
     <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="container">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
             <div class="logo">
-                🛡️ Panel<span>Administrativo</span>
+                <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true"
+                    style="width: 35px; height: 35px; object-fit: contain;" alt="FiberHub Logo" title="FiberHub">
+                FiberHub<span>Admin</span><span class="nebula-v2-badge">v2.0</span>
             </div>
+
             <div class="nav-profile-container">
                 <div style="text-align: right;">
                     <span id="adminName" style="font-weight: 600; display: block;">Admin</span>
                     <span
                         style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Superusuario</span>
                 </div>
-                <!-- Admin Open Door SVG -->
                 <div class="nav-avatar admin" title="Portal Admin">
                     <svg class="door-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none">
                         <path class="door-frame" d="M5 4h14v17h-14z" />
                         <path class="door-door" d="M5 4h14v17h-14z" style="transform-origin: 5px 12px;">
-                            <!-- Admin Decoration: Grid Lines -->
                             <path d="M5 12h14" stroke-opacity="0.3" stroke-width="1" />
                             <path d="M12 4v17" stroke-opacity="0.3" stroke-width="1" />
                         </path>
                     </svg>
                 </div>
                 <button id="logoutBtn" class="btn" style="padding: 0.5rem; margin-left: 0.5rem;" title="Cerrar Sesión">
-                    ⬅️
+                    ⬅️ Cerrar Sesión
                 </button>
             </div>
+
+            <!-- Hamburger Responsive -->
+            <div class="menu-toggle" id="mobile-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <div class="menu-overlay" id="menu-overlay"></div>
         </div>
     </nav>
+
 
     <main class="container fade-in">
         <div class="glass-panel" style="margin-top: 2rem;">
@@ -54,7 +66,6 @@
                             style="color: var(--text-muted); font-size: 0.85rem; border-bottom: 2px solid var(--border);">
                             <th style="padding: 1rem;">Departamento / Alias</th>
                             <th style="padding: 1rem;">Estado Pago</th>
-                            <th style="padding: 1rem;">Velocidad Internet</th>
                             <th style="padding: 1rem;">Acciones</th>
                         </tr>
                     </thead>
@@ -67,10 +78,8 @@
     </main>
 
     <!-- Manager Modal -->
-    <div id="managerModal"
-        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60; align-items: center; justify-content: center;">
-        <div class="glass-panel"
-            style="width: 95%; max-width: 800px; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column;">
+    <div id="managerModal" class="modal-overlay">
+        <div class="glass-panel modal-content-wrap">
             <div
                 style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
                 <h3 style="margin: 0;">Gestionar Cliente: <span id="managerTitle"
@@ -109,20 +118,7 @@
 
                     <section style="border-top: 1px solid var(--border); padding-top: 1rem;">
                         <h4 style="margin-bottom: 0.5rem; color: var(--text-muted); margin-top: 1rem;">Servicio</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                            <div>
-                                <label style="font-size: 0.8rem;">Estado Pago</label>
-                                <select id="mgrStatus" class="form-input">
-                                    <option value="paid">Pagado</option>
-                                    <option value="pending">Pendiente</option>
-                                    <option value="overdue">Vencido</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.8rem;">Próximo Vencimiento</label>
-                                <input type="date" id="mgrDate" class="form-input" style="color-scheme: dark;">
-                            </div>
-                        </div>
+
                         <div style="margin-top: 1rem;">
                             <label style="font-size: 0.8rem;">Velocidad: <span id="mgrSpeedVal">0</span> Mbps</label>
                             <input type="range" id="mgrSpeed" min="0" max="200"
@@ -219,9 +215,8 @@
     </div>
 
     <!-- Create User Modal -->
-    <div id="createUserModal"
-        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 60; align-items: center; justify-content: center;">
-        <div class="glass-panel" style="width: 90%; max-width: 400px; padding: 1.5rem;">
+    <div id="createUserModal" class="modal-overlay">
+        <div class="glass-panel modal-content-wrap" style="max-width: 440px; padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h3 style="margin: 0;">Crear Nuevo Usuario</h3>
                 <button onclick="closeCreateUser()"
@@ -254,10 +249,9 @@
     </div>
 
     <!-- Chat Modal -->
-    <div id="chatModal"
-        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100;">
-        <div class="glass-panel"
-            style="width: 90%; max-width: 500px; height: 600px; display: flex; flex-direction: column; padding: 1.5rem;">
+    <div id="chatModal" class="modal-overlay">
+        <div class="glass-panel modal-content-wrap"
+            style="max-width: 500px; height: 600px; display: flex; flex-direction: column; padding: 1.5rem;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                 <h3 id="chatTitle" style="font-size: 1.1rem; margin: 0;">Chat</h3>
                 <button onclick="closeChat()"
@@ -306,6 +300,29 @@
     </footer>
 
     <script type="module" src="./admin.js"></script>
+    <script>
+        // Hamburger Menu Logic
+        const menuToggle = document.getElementById('mobile-menu');
+        const navMenu = document.querySelector('.nav-profile-container');
+        const menuOverlay = document.getElementById('menu-overlay');
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                menuToggle.classList.toggle('active');
+                navMenu.classList.toggle('active');
+                menuOverlay.classList.toggle('active');
+            });
+        }
+
+        if (menuOverlay) {
+            menuOverlay.addEventListener('click', () => {
+                menuToggle.classList.remove('active');
+                navMenu.classList.remove('active');
+                menuOverlay.classList.remove('active');
+            });
+        }
+    </script>
+
 </body>
 
 </html>

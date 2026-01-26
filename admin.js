@@ -11,72 +11,93 @@ document.getElementById('adminName').textContent = adminUser.name;
 // Logout
 document.getElementById('logoutBtn').addEventListener('click', () => auth.logout());
 
-// Render Residents
+// Flag to prevent multiple concurrent renders
+let isRendering = false;
+let currentManagerUserId = null;
+let currentChatUserId = null;
+
 async function renderResidentList() {
-  const users = await dbData.getUsers();
-  // Filter only resident roles? users table in Supabase (profiles) has 'role'
-  const residents = users.filter(u => u.role === 'resident');
+  if (isRendering) return;
+  isRendering = true;
 
-  // Fetch profiles for all residents concurrently
-  const profiles = await Promise.all(residents.map(u => dbData.getProfile(u.id)));
+  try {
+    const users = await dbData.getUsers();
+    const residents = users.filter(u => u.role === 'resident');
+    const profiles = await Promise.all(residents.map(u => dbData.getProfile(u.id)));
 
-  const tbody = document.getElementById('residentTableBody');
-  tbody.innerHTML = '';
+    const tbody = document.getElementById('residentTableBody');
+    if (!tbody) return;
 
-  residents.forEach((user, index) => {
-    const profile = profiles[index];
-    if (!profile) return;
+    let html = '';
+    for (let i = 0; i < residents.length; i++) {
+      const user = residents[i];
+      let profile = profiles[i];
+      if (!profile) continue;
 
-    const tr = document.createElement('tr');
-    const displayAlias = profile.alias ? `<div style="font-size: 0.85em; color: var(--accent);">${profile.alias}</div>` : '';
+      // --- AUTO OVERDUE LOGIC ---
+      const nextDateStr = convertDateForInput(profile.nextPaymentDate);
+      const nextDate = new Date(nextDateStr + 'T23:59:59');
+      const today = new Date();
 
-    tr.innerHTML = `
-      <td style="padding: 1rem; border-bottom: 1px solid var(--border); font-weight: 500;">
-        ${user.username}
-        ${displayAlias}
-      </td>
-      <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
-        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-            <span style="padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; background: ${getStatusColor(profile.paymentStatus)}; display: inline-block; width: fit-content;">
-                ${getStatusText(profile.paymentStatus)}
-            </span>
-            <span style="font-size: 0.8rem; color: var(--text-muted);">
-                Vence: ${profile.nextPaymentDate || 'N/A'}
-            </span>
-        </div>
-      </td>
-      <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
-        <input type="range" min="0" max="200" value="${profile.internetSpeed}" 
-          class="speed-slider" data-userid="${user.id}" style="vertical-align: middle; accent-color: var(--accent);">
-        <span id="speed-${user.id}">${profile.internetSpeed}</span> Mbps
-      </td>
-      <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
-        <div style="display:flex; flex-direction:column; gap: 0.5rem;">
-            <button class="btn btn-primary open-chat-btn" data-userid="${user.id}" style="font-size: 0.85rem;">
-                Mensajes ${profile.messages.filter(m => m.from === 'resident' && !m.read).length ? '🔴' : ''}
-            </button>
-            <button class="btn open-mgr-btn" data-userid="${user.id}" style="font-size: 0.85rem; border: 1px solid var(--border); background: rgba(255,255,255,0.1);">
-                Gestionar Cliente
-            </button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+      if (profile.paymentStatus === 'pending' && today > nextDate) {
+        profile.paymentStatus = 'overdue';
+        dbData.updateProfile(user.id, { paymentStatus: 'overdue' });
+      }
 
-  // Re-attach listeners (since we redrew DOM)
-  document.querySelectorAll('.speed-slider').forEach(input => {
-    input.addEventListener('change', (e) => updateSpeed(e.target.dataset.userid, e.target.value));
-    input.addEventListener('input', (e) => {
-      document.getElementById(`speed-${e.target.dataset.userid}`).textContent = e.target.value;
+      const displayAlias = profile.alias ? `<div style="font-size: 0.85em; color: var(--accent);">${profile.alias}</div>` : '';
+
+      html += `
+                <tr>
+                    <td style="padding: 1rem; border-bottom: 1px solid var(--border); font-weight: 500;">
+                        ${user.username}
+                        ${displayAlias}
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
+                        <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <span style="padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; background: ${getStatusColor(profile.paymentStatus)}; display: inline-block; width: fit-content;">
+                                ${getStatusText(profile.paymentStatus)}
+                            </span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                Vence: ${profile.nextPaymentDate || 'N/A'}
+                            </span>
+                        </div>
+                    </td>
+                    <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
+                        <div style="display:flex; flex-direction:column; gap: 0.5rem;">
+                            <button class="btn btn-primary open-chat-btn" data-userid="${user.id}" style="font-size: 0.85rem;">
+                                Mensajes ${profile.messages.filter(m => m.from === 'resident' && !m.read).length ? '🔴' : ''}
+                            </button>
+                            <button class="btn open-mgr-btn" data-userid="${user.id}" style="font-size: 0.85rem; border: 1px solid var(--border); background: rgba(255,255,255,0.1);">
+                                Gestionar Cliente
+                            </button>
+                            <button class="btn notify-overdue-btn" data-userid="${user.id}" 
+                                style="font-size: 0.85rem; border: 1px solid rgba(244,63,94,0.3); background: rgba(244,63,94,0.1); color: #fb7185; ${profile.paymentStatus !== 'overdue' ? 'display:none;' : ''}"
+                                title="Enviar aviso de pago vencido">
+                                🔔 Notificar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+    }
+
+    tbody.innerHTML = html;
+
+    // Re-attach listeners
+    document.querySelectorAll('.open-chat-btn').forEach(btn => {
+      btn.addEventListener('click', () => openChat(btn.dataset.userid));
     });
-  });
-  document.querySelectorAll('.open-chat-btn').forEach(btn => {
-    btn.addEventListener('click', () => openChat(btn.dataset.userid));
-  });
-  document.querySelectorAll('.open-mgr-btn').forEach(btn => {
-    btn.addEventListener('click', () => openManager(btn.dataset.userid));
-  });
+    document.querySelectorAll('.open-mgr-btn').forEach(btn => {
+      btn.addEventListener('click', () => openManager(btn.dataset.userid));
+    });
+    document.querySelectorAll('.notify-overdue-btn').forEach(btn => {
+      btn.addEventListener('click', () => notifyOverdue(btn.dataset.userid));
+    });
+  } catch (err) {
+    console.error("Error rendering resident list:", err);
+  } finally {
+    isRendering = false;
+  }
 }
 
 function getStatusColor(status) {
@@ -85,102 +106,93 @@ function getStatusColor(status) {
   return 'rgba(244, 63, 94, 0.2); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3)';
 }
 
-// Actions
-window.updateSpeed = async (userId, speed) => {
-  await dbData.updateProfile(userId, { internetSpeed: parseInt(speed) });
-  // No need to re-render whole list usually, but safely we can
-};
-
-function convertDateForInput(dateString) {
-  if (!dateString) return new Date().toISOString().split('T')[0];
-  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString;
-  try {
-    const months = {
-      'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06',
-      'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12'
-    };
-    const parts = dateString.toLowerCase().match(/(\d{1,2}) de ([a-z]+)[,]?(?: de)? (\d{4})/);
-    if (parts) {
-      const day = parts[1].padStart(2, '0');
-      const month = months[parts[2]];
-      const year = parts[3];
-      if (month) return `${year}-${month}-${day}`;
-    }
-  } catch (e) { }
-  const d = new Date(dateString);
-  if (!isNaN(d.getTime())) return d.toISOString().split('T')[0];
-  return new Date().toISOString().split('T')[0];
+function getStatusText(status) {
+  if (status === 'paid') return 'Pagado';
+  if (status === 'pending') return 'Pendiente';
+  return 'Vencido';
 }
 
+// --- MODAL UTILS ---
+function openModal(id) {
+  const modal = document.getElementById(id);
+  modal.style.display = 'flex';
+  setTimeout(() => modal.classList.add('active'), 10);
+}
 
-// --- Manager Modal Logic ---
-let currentManagerUserId = null;
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  modal.classList.remove('active');
+  setTimeout(() => {
+    modal.style.display = 'none';
+    if (id === 'managerModal') {
+      currentManagerUserId = null;
+      document.getElementById('historyEditForm').style.display = 'none';
+    }
+  }, 400);
+}
 
+// --- HANDLERS ---
 window.openManager = async (userId) => {
   currentManagerUserId = userId;
   const user = await dbData.findUserById(userId);
   const profile = await dbData.getProfile(userId);
   if (!user || !profile) return;
 
-  document.getElementById('managerModal').style.display = 'flex';
   document.getElementById('managerTitle').textContent = user.username + (profile.alias ? ` (${profile.alias})` : '');
-
-  // Profile
   document.getElementById('mgrAlias').value = profile.alias || '';
   document.getElementById('mgrUsername').value = user.username;
   document.getElementById('mgrPassword').value = '';
-
-  // Service
-  document.getElementById('mgrStatus').value = profile.paymentStatus;
-  document.getElementById('mgrDate').value = convertDateForInput(profile.nextPaymentDate);
-  document.getElementById('mgrSpeed').value = profile.internetSpeed;
-  document.getElementById('mgrSpeedVal').textContent = profile.internetSpeed;
-
-  // WiFi
+  document.getElementById('mgrSpeed').value = profile.internetSpeed || 50;
+  document.getElementById('mgrSpeedVal').textContent = profile.internetSpeed || 50;
   document.getElementById('mgrWifiSSID').value = profile.wifiSSID || '';
   document.getElementById('mgrWifiPass').value = profile.wifiPass || '';
+
   updateQrDisplay(profile.wifiSSID, profile.wifiPass);
-
   renderManagerHistory(profile.paymentHistory || []);
+  openModal('managerModal');
 };
 
-window.closeManager = () => {
-  document.getElementById('managerModal').style.display = 'none';
-  currentManagerUserId = null;
-  renderResidentList();
+window.closeManager = () => closeModal('managerModal');
+window.openCreateUser = () => openModal('createUserModal');
+window.closeCreateUser = () => closeModal('createUserModal');
+window.closeChat = () => {
+  closeModal('chatModal');
+  currentChatUserId = null;
 };
+
+// Click outside to close
+[document.getElementById('managerModal'), document.getElementById('createUserModal'), document.getElementById('chatModal')].forEach(modal => {
+  if (!modal) return;
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal(modal.id);
+  });
+});
 
 window.saveProfileChanges = async () => {
   if (!currentManagerUserId) return;
   const alias = document.getElementById('mgrAlias').value.trim();
   const username = document.getElementById('mgrUsername').value.trim();
-  // Password update not supported directly via this method in this simple mapping without backend logic
+  const password = document.getElementById('mgrPassword').value;
 
-  await dbData.updateUser(currentManagerUserId, { username }); // This actually calls updateProfile in store.js shim
   await dbData.updateProfile(currentManagerUserId, { alias });
+  // In this shim, we assume the username might be the email or just a field.
+  // If auth update is needed, it should be handled via auth.js
 
-  alert('Perfil actualizado');
+  notify.success('Perfil actualizado');
+  renderResidentList();
   openManager(currentManagerUserId);
 };
 
 window.saveServiceChanges = async () => {
   if (!currentManagerUserId) return;
-  const paymentStatus = document.getElementById('mgrStatus').value;
-  const dateStr = document.getElementById('mgrDate').value;
   const internetSpeed = parseInt(document.getElementById('mgrSpeed').value);
   const wifiSSID = document.getElementById('mgrWifiSSID').value.trim();
   const wifiPass = document.getElementById('mgrWifiPass').value.trim();
 
-  let nextPaymentDate = (await dbData.getProfile(currentManagerUserId)).nextPaymentDate;
-  if (dateStr) {
-    const [y, m, d] = dateStr.split('-');
-    const dateObj = new Date(y, m - 1, d);
-    nextPaymentDate = dateObj.toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
-
-  await dbData.updateProfile(currentManagerUserId, { paymentStatus, nextPaymentDate, internetSpeed, wifiSSID, wifiPass });
+  await dbData.updateProfile(currentManagerUserId, { internetSpeed, wifiSSID, wifiPass });
   updateQrDisplay(wifiSSID, wifiPass);
-  alert('Servicio y WiFi actualizados');
+  notify.success('Servicio y WiFi actualizados');
+  renderResidentList();
 };
 
 function updateQrDisplay(ssid, pass) {
@@ -195,16 +207,13 @@ function updateQrDisplay(ssid, pass) {
   } else {
     img.style.display = 'none';
     placeholder.style.display = 'flex';
-    placeholder.textContent = 'Ingrese SSID y Contraseña para ver QR';
   }
 }
 
 window.generateRandomPass = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let pass = '';
-  for (let i = 0; i < 8; i++) {
-    pass += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+  for (let i = 0; i < 8; i++) pass += chars.charAt(Math.floor(Math.random() * chars.length));
   document.getElementById('mgrWifiPass').value = pass;
 };
 
@@ -212,8 +221,7 @@ document.getElementById('mgrSpeed').addEventListener('input', (e) => {
   document.getElementById('mgrSpeedVal').textContent = e.target.value;
 });
 
-// --- History Logic ---
-
+// --- History ---
 function renderManagerHistory(history) {
   const tbody = document.getElementById('mgrHistoryBody');
   tbody.innerHTML = '';
@@ -225,8 +233,8 @@ function renderManagerHistory(history) {
             <td style="padding: 0.5rem; border-bottom: 1px solid var(--border);">${item.amount}</td>
             <td style="padding: 0.5rem; border-bottom: 1px solid var(--border);">${getStatusText(item.status)}</td>
             <td style="padding: 0.5rem; border-bottom: 1px solid var(--border); text-align: right;">
-                <button onclick="editHistoryItem('${item.id}')" style="font-size: 0.7rem; margin-right: 0.2rem; cursor: pointer;">✏️</button>
-                <button onclick="deleteHistoryItem('${item.id}')" style="font-size: 0.7rem; color: #f87171; cursor: pointer;">🗑️</button>
+                <button onclick="editHistoryItem('${item.id}')" style="background:none; border:none; cursor:pointer;">✏️</button>
+                <button onclick="deleteHistoryItem('${item.id}')" style="background:none; border:none; cursor:pointer; color: #f87171;">🗑️</button>
             </td>
         `;
     tbody.appendChild(tr);
@@ -242,9 +250,7 @@ window.openAddHistory = () => {
   document.getElementById('histStatus').value = 'paid';
 };
 
-window.cancelHistoryEdit = () => {
-  document.getElementById('historyEditForm').style.display = 'none';
-};
+window.cancelHistoryEdit = () => document.getElementById('historyEditForm').style.display = 'none';
 
 window.saveHistoryItem = async () => {
   if (!currentManagerUserId) return;
@@ -256,16 +262,30 @@ window.saveHistoryItem = async () => {
     status: document.getElementById('histStatus').value
   };
 
-  if (id) {
-    await dbData.updateHistoryItem(currentManagerUserId, id, item);
-  } else {
-    await dbData.addHistoryItem(currentManagerUserId, item);
-  }
+  if (id) await dbData.updateHistoryItem(currentManagerUserId, id, item);
+  else await dbData.addHistoryItem(currentManagerUserId, item);
 
-  // Refresh
-  const profile = await dbData.getProfile(currentManagerUserId);
-  renderManagerHistory(profile.paymentHistory);
+  const updatedProfile = await dbData.getProfile(currentManagerUserId);
+  renderManagerHistory(updatedProfile.paymentHistory);
   document.getElementById('historyEditForm').style.display = 'none';
+
+  // Auto-sync status
+  if (updatedProfile.paymentHistory && updatedProfile.paymentHistory.length > 0) {
+    const latest = updatedProfile.paymentHistory[0];
+    let finalStatus = latest.status;
+    if (finalStatus === 'pending') {
+      const check = new Date(latest.date + 'T23:59:59');
+      if (new Date() > check) finalStatus = 'overdue';
+    }
+    const updates = { paymentStatus: finalStatus };
+    if (!id) {
+      const nextDateStr = getNextMonthDate(latest.date);
+      updates.nextPaymentDate = formatDateToSpanish(nextDateStr);
+    }
+    await dbData.updateProfile(currentManagerUserId, updates);
+    notify.success('Sincronizado: ' + getStatusText(finalStatus));
+  }
+  renderResidentList();
 };
 
 window.editHistoryItem = async (itemId) => {
@@ -282,93 +302,59 @@ window.editHistoryItem = async (itemId) => {
 };
 
 window.deleteHistoryItem = async (itemId) => {
-  if (confirm('¿Seguro que quieres borrar este registro?')) {
+  if (confirm('¿Borrar este registro?')) {
     await dbData.deleteHistoryItem(currentManagerUserId, itemId);
-    const profile = await dbData.getProfile(currentManagerUserId);
-    renderManagerHistory(profile.paymentHistory);
+    const p = await dbData.getProfile(currentManagerUserId);
+    renderManagerHistory(p.paymentHistory);
   }
 };
 
-function getStatusText(status) {
-  if (status === 'paid') return 'Pagado';
-  if (status === 'pending') return 'Pendiente';
-  return 'Vencido';
-}
-
-// Chat Modal Logic
-const modal = document.getElementById('chatModal');
-const chatTitle = document.getElementById('chatTitle');
-const chatMsgs = document.getElementById('chatMessages');
-let currentChatUserId = null;
-
+// --- CHAT ---
 window.openChat = async (userId) => {
   currentChatUserId = userId;
   const user = await dbData.findUserById(userId);
   const profile = await dbData.getProfile(userId);
   const displayName = profile.alias || user.username;
 
-  chatTitle.textContent = `Chat: ${displayName}`;
-  modal.style.display = 'flex';
+  document.getElementById('chatTitle').textContent = `Chat: ${displayName}`;
+  openModal('chatModal');
 
   await dbData.markMessagesRead(userId);
   renderResidentList();
-
-  renderChatMessages();
-};
-
-window.closeChat = () => {
-  modal.style.display = 'none';
-  currentChatUserId = null;
-};
-
-window.deleteUser = async () => {
-  if (!currentManagerUserId) return;
-  if (confirm('🚨 ¿Estás seguro de ELIMINAR este usuario permanentemente?')) {
-    await dbData.deleteUser(currentManagerUserId);
-    closeManager();
-    renderResidentList();
-  }
+  renderChatMessages(true);
 };
 
 async function renderChatMessages(forceScroll = false) {
   if (!currentChatUserId) return;
   const profile = await dbData.getProfile(currentChatUserId);
+  const chatMsgs = document.getElementById('chatMessages');
 
   const threshold = 100;
   const isAtBottom = chatMsgs.scrollHeight - chatMsgs.scrollTop - chatMsgs.clientHeight < threshold;
-  const wasEmpty = chatMsgs.innerHTML === '';
 
   chatMsgs.innerHTML = '';
   profile.messages.forEach(msg => {
     const div = document.createElement('div');
     const isAdmin = msg.from === 'admin';
-    const time = new Date(msg.timestamp).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit', day: 'numeric', month: 'short' });
+    const time = new Date(msg.timestamp).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
     div.style.cssText = `
-      display: flex; flex-direction: column;
-      margin-bottom: 0.5rem; 
-      max-width: 80%;
-      align-self: ${isAdmin ? 'flex-end' : 'flex-start'};
-    `;
+            margin-bottom: 0.5rem; max-width: 80%;
+            align-self: ${isAdmin ? 'flex-end' : 'flex-start'};
+            display: flex; flex-direction: column;
+        `;
     div.innerHTML = `
-        <div style="
-            padding: 0.5rem; 
-            border-radius: 0.5rem; 
-            background: ${isAdmin ? 'var(--accent)' : 'var(--border)'};
-            color: ${isAdmin ? 'white' : 'var(--text-main)'};
-        ">
-            ${msg.text}
-        </div>
-        <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: ${isAdmin ? 'flex-end' : 'flex-start'};">
-            ${time}
-        </span>
-    `;
+            <div style="padding: 0.5rem 0.8rem; border-radius: 12px; background: ${isAdmin ? 'var(--accent)' : 'rgba(255,255,255,0.1)'}; color: white;">
+                ${msg.text}
+            </div>
+            <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 0.2rem; align-self: ${isAdmin ? 'flex-end' : 'flex-start'};">
+                ${time}
+            </span>
+        `;
     chatMsgs.appendChild(div);
   });
 
-  if (forceScroll || isAtBottom || wasEmpty) {
-    chatMsgs.scrollTop = chatMsgs.scrollHeight;
-  }
+  if (forceScroll || isAtBottom) chatMsgs.scrollTop = chatMsgs.scrollHeight;
 }
 
 document.getElementById('adminChatForm').addEventListener('submit', async (e) => {
@@ -384,7 +370,7 @@ document.getElementById('adminChatForm').addEventListener('submit', async (e) =>
   }
 });
 
-// Admin Emoji Picker
+// Emoji Pickers
 document.querySelectorAll('.admin-emoji').forEach(btn => {
   btn.addEventListener('click', () => {
     const input = document.getElementById('adminMsgInput');
@@ -393,68 +379,81 @@ document.querySelectorAll('.admin-emoji').forEach(btn => {
   });
 });
 
-window.openCreateUser = () => {
-  document.getElementById('createUserModal').style.display = 'flex';
-  document.getElementById('newUsername').value = '';
-  document.getElementById('newPassword').value = '';
-  document.getElementById('newRole').value = 'resident';
-};
-window.closeCreateUser = () => {
-  document.getElementById('createUserModal').style.display = 'none';
-};
-
-window.createUser = async (e) => {
-  e.preventDefault();
-  const username = document.getElementById('newUsername').value.trim();
-  const password = document.getElementById('newPassword').value.trim();
-  const role = document.getElementById('newRole').value;
-
-  if (username && password) {
-    // Just use auth.register logic via store or directly?
-    // Auth.js handles registration.
-    // Store.js createUser is just a stub in new implementation because auth handles it.
-    // So we should call auth.register here? But auth.register logs us in!
-    // We are admin. We want to create another user without logging out.
-    // Supabase client SDK doesn't easily support "create user" without being that user, UNLESS we use service role (server-side).
-    // Client-side, creating a user logs you in as that user automatically.
-    // FIX: warn user or use a workaround? 
-    // In this "scratch" implementation, we can't easily create users as admin without logging out.
-    // We will alert the user about this limitation for now.
-    alert('Nota: Supabase no permite crear usuarios desde el cliente sin cerrar sesión. Por favor usa el panel de Supabase o regístrate en la página principal.');
-    closeCreateUser();
+window.deleteUser = async () => {
+  if (!currentManagerUserId) return;
+  if (confirm('🚨 ¿Eliminar este usuario PERMANENTEMENTE?')) {
+    const success = await dbData.deleteUser(currentManagerUserId);
+    if (success) {
+      closeModal('managerModal');
+      renderResidentList();
+      notify.info('Usuario eliminado.');
+    } else {
+      notify.error('Error al eliminar.');
+    }
   }
 };
 
-// Initial Render
-renderResidentList();
-notify.requestPermission();
+window.notifyOverdue = async (userId) => {
+  const profile = await dbData.getProfile(userId);
+  const user = await dbData.findUserById(userId);
+  const name = profile.alias || user.username;
 
-// Admin Polling
-let lastTotalMessages = 0;
-let isFirstLoad = true;
+  if (confirm(`¿Enviar aviso de pago vencido a ${name}?`)) {
+    const warning = `⚠️ AVISO DE PAGO VENCIDO: Estimado residente ${name}, le informamos que su servicio presenta un pago vencido. Favor de regularizar su situación.`;
+    await dbData.addMessage(userId, { from: 'admin', text: warning });
+    notify.playSendSound();
+    notify.success(`Aviso enviado a ${name}`);
+    renderResidentList();
+  }
+};
 
+// Utils
+function convertDateForInput(dateString) {
+  if (!dateString) return new Date().toISOString().split('T')[0];
+  if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString;
+  const months = { 'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12' };
+  const parts = dateString.toLowerCase().match(/(\d{1,2}) de ([a-z]+)[,]?(?: de)? (\d{4})/);
+  if (parts) return `${parts[3]}-${months[parts[2]]}-${parts[1].padStart(2, '0')}`;
+  return new Date().toISOString().split('T')[0];
+}
+
+function getNextMonthDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  date.setMonth(date.getMonth() + 1);
+  return date.toISOString().split('T')[0];
+}
+
+function formatDateToSpanish(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+// Polling
 setInterval(() => {
   renderResidentList();
   checkNewMessages();
 }, 5000);
 
+let lastTotalMessages = 0;
+let isFirstLoad = true;
 async function checkNewMessages() {
   const users = await dbData.getUsers();
-  // Optimization needed here for scaling but fine for demo
-  // But we need to filter resident
   const residents = users.filter(u => u.role === 'resident');
-
-  let totalMessages = 0;
+  let count = 0;
   for (const u of residents) {
     const p = await dbData.getProfile(u.id);
-    if (p) totalMessages += p.messages.length;
+    if (p) count += p.messages.length;
   }
 
-  if (!isFirstLoad && totalMessages > lastTotalMessages) {
+  if (!isFirstLoad && count > lastTotalMessages) {
     notify.playReceiveSound();
-    notify.show('Portal Admin', 'Tiene nuevos mensajes de residentes.');
+    notify.show('FiberHub', 'Nuevo mensaje recibido.');
+    if (currentChatUserId) renderChatMessages();
   }
-
-  lastTotalMessages = totalMessages;
+  lastTotalMessages = count;
   isFirstLoad = false;
 }
+
+renderResidentList();
+notify.requestPermission();
