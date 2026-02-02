@@ -13,17 +13,17 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="container flex-between">
             <div class="logo">
                 <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true"
-                    style="width: 35px; height: 35px; object-fit: contain;" alt="FiberHub Logo" title="FiberHub">
+                    class="qr-img" style="width: 35px; height: 35px;" alt="FiberHub Logo" title="FiberHub">
                 FiberHub<span>Residente</span><span class="nebula-v2-badge">v2.0</span>
             </div>
 
             <div class="nav-profile-container">
-                <div style="text-align: right; line-height: 1.2;">
-                    <div id="userNameDisplay" style="font-weight: 600;">Cargando...</div>
-                    <div id="userAliasDisplay" style="font-size: 0.8rem; color: var(--text-muted); cursor: pointer;">...
+                <div class="text-right" style="line-height: 1.2;">
+                    <div id="userNameDisplay" class="font-semibold">Cargando...</div>
+                    <div id="userAliasDisplay" class="text-sm text-muted-color cursor-pointer">...
                     </div>
                 </div>
                 <!-- Resident Animated Door SVG -->
@@ -35,7 +35,7 @@
                             style="pointer-events: none;" />
                     </svg>
                 </div>
-                <button id="logoutBtn" class="btn" style="padding: 0.5rem; margin-left: 0.5rem;" title="Cerrar Sesión">
+                <button id="logoutBtn" class="btn p-2" style="margin-left: 0.5rem;" title="Cerrar Sesión">
                     ⬅️ Cerrar Sesión
                 </button>
             </div>
@@ -54,10 +54,9 @@
     <!-- Alias Modal -->
     <div id="aliasModal" class="modal-overlay">
         <div class="glass-panel modal-content-wrap" style="max-width: 380px;">
-            <h3 style="margin-bottom: 1.5rem;">Configurar Alias</h3>
-            <input type="text" id="aliasInput" class="form-input" placeholder="Ej. Familia González"
-                style="margin-bottom: 1rem;">
-            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+            <h3 class="mb-3">Configurar Alias</h3>
+            <input type="text" id="aliasInput" class="form-input mb-2" placeholder="Ej. Familia González">
+            <div class="flex gap-1 justify-center" style="justify-content: flex-end;">
                 <button id="cancelAliasBtn" class="btn"
                     style="border: 1px solid var(--border); background: transparent;">Cancelar</button>
                 <button id="saveAliasBtn" class="btn btn-primary">Guardar</button>
@@ -70,16 +69,15 @@
         <div class="dashboard-grid">
 
             <!-- Payment Status Card -->
-            <article class="glass-panel" style="padding: 2rem;">
-                <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <article class="glass-panel p-4">
+                <h3 class="flex-align-center gap-1 mb-2">
                     📅 Renta y Servicios de Internet
                 </h3>
-                <div style="margin-bottom: 1.5rem;">
-                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.25rem;">Próximo vencimiento
-                    </p>
-                    <p style="font-size: 1.25rem; font-weight: 600;" id="paymentDate">Cargando...</p>
+                <div class="mb-3">
+                    <p class="text-sm text-muted-color mb-1">Próximo vencimiento</p>
+                    <p class="font-semibold" style="font-size: 1.25rem;" id="paymentDate">Cargando...</p>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="flex-between">
                     <span class="status-badge" id="paymentStatus">Cargando...</span>
                     <a href="#" id="viewHistoryBtn"
                         style="color: var(--accent); font-size: 0.9rem; text-decoration: none;">Ver historial</a>
@@ -117,12 +115,12 @@
             </div>
 
             <!-- Connectivity Card -->
-            <article class="glass-panel" style="padding: 2rem;">
-                <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+            <article class="glass-panel p-4">
+                <h3 class="flex-align-center gap-1 mb-2">
                     🚀 Conexión de Red
                 </h3>
-                <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                    <span style="font-size: 2.5rem; font-weight: 700; color: var(--text-main);" id="speedValue">0</span>
+                <div class="flex gap-1" style="align-items: baseline;">
+                    <span class="font-bold" style="font-size: 2.5rem; color: var(--text-main);" id="speedValue">0</span>
                     <span style="font-size: 1rem; color: var(--text-muted);">Mbps</span>
                 </div>
                 <div class="speed-meter-container">
@@ -131,9 +129,8 @@
                     </div>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Fibra Óptica Dedicada</p>
-
+                <div class="flex-between mt-2">
+                    <p class="text-xs text-muted-color m-0">Fibra Óptica Dedicada</p>
                 </div>
             </article>
 
@@ -209,41 +206,39 @@
 
 
         <!-- WiFi Details Card -->
-        <article class="glass-panel" style="padding: 2rem; grid-column: span 2;">
-            <h3 style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+        <article class="glass-panel p-4" style="grid-column: span 2;">
+            <h3 class="flex-align-center gap-1 mb-3">
                 📡 Detalles WiFi
             </h3>
 
-            <div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+            <div class="flex gap-4 flex-align-center flex-wrap">
                 <!-- QR Code -->
-                <div style="background: white; padding: 1rem; border-radius: 12px; height: fit-content;">
-                    <img id="dashWifiQr" src="" alt="Escanee para conectar"
-                        style="width: 140px; height: 140px; object-fit: contain; display: none;">
-                    <div id="dashQrPlaceholder"
-                        style="width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; color: #333; font-size: 0.8rem;">
+                <div class="qr-container">
+                    <img id="dashWifiQr" src="" alt="Escanee para conectar" class="qr-img" style="display: none;">
+                    <div id="dashQrPlaceholder" class="qr-placeholder">
                         No configurado
                     </div>
                 </div>
 
                 <!-- Text Details -->
-                <div style="flex: 1; display: flex; flex-direction: column; gap: 1rem;">
+                <div class="flex flex-col gap-2" style="flex: 1;">
                     <div>
-                        <span
-                            style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Nombre
+                        <span class="text-sm text-muted-color"
+                            style="text-transform: uppercase; letter-spacing: 0.05em;">Nombre
                             de Red (SSID)</span>
-                        <div style="font-size: 1.5rem; font-weight: 600; color: var(--primary);" id="dashSsid">
+                        <div class="font-semibold" style="font-size: 1.5rem; color: var(--primary);" id="dashSsid">
                             ...
                         </div>
                     </div>
                     <div>
-                        <span
-                            style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Contraseña</span>
+                        <span class="text-sm text-muted-color"
+                            style="text-transform: uppercase; letter-spacing: 0.05em;">Contraseña</span>
                         <div
                             style="font-size: 1.25rem; font-family: monospace; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--border); display: inline-block;">
                             <span id="dashPass">...</span>
                         </div>
                     </div>
-                    <p style="font-size: 0.85rem; opacity: 0.7; margin: 0;">
+                    <p class="text-sm" style="opacity: 0.7; margin: 0;">
                         📷 Escanee el código QR con su celular para conectarse automáticamente.
                     </p>
                 </div>
@@ -252,28 +247,25 @@
         </div>
 
         <!-- Especial Services Section -->
-        <section class="glass-panel" style="margin-top: 3rem; margin-bottom: 3rem; padding: 2rem;">
-            <h3
-                style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; justify-content: center;">
+        <section class="glass-panel services-section">
+            <h3 class="flex-center gap-1 mb-3">
                 ✨ Servicios Especiales
             </h3>
-            <div style="display: flex; justify-content: center; align-items: center;">
-                <a href="https://www.clarovideo.com/mexico/landing" target="_blank" rel="noopener"
-                    style="transition: transform 0.3s ease;">
-                    <img src="https://i.blogs.es/442c56/claro-/450_1000.jpg" alt="Claro Video"
-                        style="width: 250px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);"
-                        onmouseover="this.parentElement.style.transform='scale(1.05)'"
-                        onmouseout="this.parentElement.style.transform='scale(1)'">
+            <p class="flex-center gap-1 mb-3">
+                Gratis:
+            </p>
+            <div class="flex-center">
+                <a href="https://www.clarovideo.com/mexico/landing" target="_blank" rel="noopener" class="service-item">
+                    <img src="https://i.blogs.es/442c56/claro-/450_1000.jpg" alt="Claro Video" class="service-img">
                 </a>
             </div>
-            <div style="display: flex; justify-content: center; align-items: center;">
-                <a href="https://www.netflix.com/mx/" target="_blank" rel="noopener"
-                    style="transition: transform 0.3s ease;">
+            <p class="flex-center gap-1 mb-3 mt-4">
+                Suscripción:
+            </p>
+            <div class="flex-center">
+                <a href="https://www.netflix.com/mx/" target="_blank" rel="noopener" class="service-item">
                     <img src="https://tse2.mm.bing.net/th/id/OIP.USRGLnk6iOi0Hakpo6VLMgHaEK?rs=1&pid=ImgDetMain&o=7&rm=3"
-                        alt="Netflix"
-                        style="width: 250px; height: auto; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);"
-                        onmouseover="this.parentElement.style.transform='scale(1.05)'"
-                        onmouseout="this.parentElement.style.transform='scale(1)'">
+                        alt="Netflix" class="service-img">
                 </a>
             </div>
         </section>
@@ -288,31 +280,21 @@
                 <!-- Messages populated by JS -->
             </div>
 
-            <form id="messageForm" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <div class="emoji-bar" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem;">
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">😀</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">😂</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">👍</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">👋</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">🎉</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">❤️</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">⚠️</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">📅</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">🚀</button>
-                    <button type="button" class="btn-emoji"
-                        style="background:none; border:none; cursor:pointer; font-size:1.2rem;">💬</button>
+            <form id="messageForm" class="flex flex-col gap-1">
+                <div class="emoji-bar flex gap-1">
+                    <button type="button" class="btn-emoji">😀</button>
+                    <button type="button" class="btn-emoji">😂</button>
+                    <button type="button" class="btn-emoji">👍</button>
+                    <button type="button" class="btn-emoji">👋</button>
+                    <button type="button" class="btn-emoji">🎉</button>
+                    <button type="button" class="btn-emoji">❤️</button>
+                    <button type="button" class="btn-emoji">⚠️</button>
+                    <button type="button" class="btn-emoji">📅</button>
+                    <button type="button" class="btn-emoji">🚀</button>
+                    <button type="button" class="btn-emoji">💬</button>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" class="form-input" placeholder="Escribe un mensaje..." style="flex: 1;" required
+                <div class="flex gap-1">
+                    <input type="text" class="form-input flex-1" placeholder="Escribe un mensaje..." required
                         id="messageInput" />
                     <button type="submit" class="btn btn-primary">
                         Enviar

@@ -1344,3 +1344,189 @@ td {
 html {
     scroll-behavior: smooth;
 }
+
+/* --- Utility Classes --- */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-align-center {
+    display: flex;
+    align-items: center;
+}
+
+.flex-wrap {
+    flex-wrap: wrap;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-sm {
+    font-size: 0.85rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-muted-color {
+    color: var(--text-muted);
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Spacing Utilities */
+.gap-1 {
+    gap: 0.5rem;
+}
+
+.gap-2 {
+    gap: 1rem;
+}
+
+.gap-3 {
+    gap: 1.5rem;
+}
+
+.gap-4 {
+    gap: 2rem;
+}
+
+.m-0 {
+    margin: 0;
+}
+
+.mb-1 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 2rem;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
+
+.mt-6 {
+    margin-top: 3rem;
+}
+
+.p-2 {
+    padding: 1rem;
+}
+
+.p-4 {
+    padding: 2rem;
+}
+
+/* Dashboard Specific Semantic Classes */
+.services-section {
+    margin: 3rem 0;
+    padding: 2rem;
+}
+
+.service-item {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.service-item:hover {
+    transform: scale(1.05);
+}
+
+.service-img {
+    width: 250px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.qr-container {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    height: fit-content;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-img {
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+}
+
+.qr-placeholder {
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #333;
+    font-size: 0.8rem;
+}
+
+.btn-emoji {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.25rem;
+    transition: transform 0.2s;
+}
+
+.btn-emoji:hover {
+    transform: scale(1.2);
+}
+
+.flex-1 {
+    flex: 1;
+}
