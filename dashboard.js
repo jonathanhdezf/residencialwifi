@@ -232,14 +232,89 @@ function getStatusClass(status) {
 }
 
 function downloadReceipt(item) {
-    const html = `<html><body style="font-family: sans-serif; padding: 40px;"><div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px;"><h2>Recibo de Internet</h2><p>Periodo: ${item.period}</p><p>Monto: ${item.amount}</p><p>Estado: ${getStatusText(item.status)}</p><p>Fecha: ${item.date}</p></div></body></html>`;
+    const statusText = getStatusText(item.status);
+    const statusColor = item.status === 'paid' ? '#10b981' : (item.status === 'pending' ? '#f59e0b' : '#f43f5e');
+    const statusBg = item.status === 'paid' ? 'rgba(16, 185, 129, 0.1)' : (item.status === 'pending' ? 'rgba(245, 158, 11, 0.1)' : 'rgba(244, 63, 94, 0.1)');
+
+    const html = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; color: #1e293b; padding: 40px; margin: 0; }
+        .receipt-card { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #e2e8f0; }
+        .header { background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); padding: 30px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-img { width: 40px; height: 40px; object-fit: contain; }
+        .logo-text { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+        .receipt-body { padding: 40px; }
+        .title { font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #0f172a; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .info-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+        .info-value { font-size: 16px; font-weight: 600; color: #1e293b; }
+        .summary-card { background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #e2e8f0; }
+        .amount-row { display: flex; justify-content: space-between; align-items: center; }
+        .amount-total { font-size: 28px; font-weight: 700; color: #4f46e5; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 99px; font-size: 13px; font-weight: 600; text-transform: uppercase; color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}44; }
+        .footer { padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; border-top: 1px solid #f1f5f9; }
+        .print-btn { display: block; width: 100%; padding: 12px; background: #4f46e5; color: white; text-align: center; text-decoration: none; border-radius: 8px; font-weight: 600; margin-top: 20px; transition: background 0.2s; }
+        @media print { .print-btn { display: none; } body { background: white; padding: 0; } .receipt-card { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+    <div class="receipt-card">
+        <div class="header">
+            <div class="logo-area">
+                <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true" class="logo-img">
+                <span class="logo-text">FiberHub</span>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: 0.8;">Recibo Electrónico</div>
+                <div style="font-weight: 600;">#${Math.random().toString(36).substr(2, 9).toUpperCase()}</div>
+            </div>
+        </div>
+        <div class="receipt-body">
+            <div class="title">Comprobante de Pago</div>
+            
+            <div class="info-grid">
+                <div>
+                    <div class="info-label">Periodo de Servicio</div>
+                    <div class="info-value">${item.period}</div>
+                </div>
+                <div>
+                    <div class="info-label">Fecha de Emisión</div>
+                    <div class="info-value">${item.date}</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="info-label">Estado del Pago</div>
+                <div style="margin-bottom: 20px;">
+                    <span class="status-badge">${statusText}</span>
+                </div>
+                <div class="amount-row">
+                    <div class="info-label" style="margin: 0;">Total Pagado</div>
+                    <div class="amount-total">${item.amount}</div>
+                </div>
+            </div>
+
+            <a href="javascript:window.print()" class="print-btn">Imprimir / Guardar PDF</a>
+        </div>
+        <div class="footer">
+            Fiberlink Servicios TIC | Soporte 24/7 | © 2026 FiberHub
+        </div>
+    </div>
+</body>
+</html>`;
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `Recibo_${item.period}.html`;
+    a.download = `Recibo_${item.period.replace(/ /g, '_')}.html`;
     a.click();
-    notify.info('Recibo descargado');
+    notify.success('Recibo generado perfectamente');
 }
 
 // Polling
