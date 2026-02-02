@@ -38,6 +38,7 @@
     padding: 0;
 }
 
+html,
 body {
     font-family: var(--font-main);
     background-color: var(--bg-dark);
@@ -698,7 +699,9 @@ td {
     .nav-profile-container {
         position: fixed;
         top: 0;
-        right: -100%;
+        right: 0;
+        transform: translateX(100%);
+        visibility: hidden;
         width: min(300px, 80%);
         height: 100vh;
         background: rgba(9, 9, 11, 0.98);
@@ -708,7 +711,7 @@ td {
         justify-content: center;
         align-items: center;
         gap: 2.5rem;
-        transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
         z-index: 100;
         border-left: 1px solid var(--glass-border);
         padding: 2rem;
@@ -716,7 +719,8 @@ td {
     }
 
     .nav-profile-container.active {
-        right: 0;
+        transform: translateX(0);
+        visibility: visible;
     }
 
     .nav-profile-container div {
@@ -1253,7 +1257,9 @@ td {
     .nav-links {
         position: fixed;
         top: 0;
-        right: -100%;
+        right: 0;
+        transform: translateX(100%);
+        visibility: hidden;
         width: min(300px, 80%);
         height: 100vh;
         background: rgba(9, 9, 11, 0.98);
@@ -1263,7 +1269,7 @@ td {
         justify-content: center;
         align-items: center;
         gap: 2.5rem;
-        transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
         z-index: 100;
         border-left: 1px solid var(--glass-border);
         padding: 2rem;
@@ -1271,7 +1277,8 @@ td {
     }
 
     .nav-links.active {
-        right: 0;
+        transform: translateX(0);
+        visibility: visible;
     }
 
     .nav-links a:not(.btn) {
