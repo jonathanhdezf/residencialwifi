@@ -20,10 +20,10 @@
                 FiberHub<span style="font-weight: 400; font-size: 0.9em; opacity: 0.8;">Residencial</span><span
                     class="nebula-v2-badge">v2.0</span>
             </div>
-            <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
-                <a href="#funciones" style="color: var(--text-muted); text-decoration: none;">Funciones</a>
-                <a href="#beneficios" style="color: var(--text-muted); text-decoration: none;">Beneficios</a>
-                <a href="#contacto" style="color: var(--text-muted); text-decoration: none;">Contacto</a>
+            <div class="nav-links">
+                <a href="#funciones">Funciones</a>
+                <a href="#beneficios">Beneficios</a>
+                <a href="#contacto">Contacto</a>
                 <a href="./index.html" class="btn btn-primary" style="padding: 0.5rem 1.5rem;">Ingresar</a>
             </div>
             <!-- Mobile Menu Toggle -->
@@ -32,22 +32,20 @@
             </div>
         </div>
     </nav>
+    <div class="menu-overlay" id="menu-overlay"></div>
 
     <!-- Hero Section -->
     <header class="hero-section container">
         <div class="parallax-bg"></div>
         <div class="hero-grid">
             <div class="hero-content fade-in">
-                <span
-                    style="background: rgba(99, 102, 241, 0.1); color: var(--accent); padding: 0.4rem 1rem; border-radius: 99px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; border: 1px solid var(--accent-glow);">Bienvenido
-                    a FiberHub</span>
-                <h1 style="margin-top: 1.5rem;">La central inteligente para tu <span style="color: var(--accent);">red
-                        comunitaria</span></h1>
-                <p style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2.5rem; line-height: 1.6;">
+                <span class="hero-tag">Bienvenido a FiberHub</span>
+                <h1>La central inteligente para tu <span style="color: var(--accent);">red comunitaria</span></h1>
+                <p>
                     Administra, monitorea y optimiza el servicio de internet para tus residentes o clientes con una
                     plataforma moderna y confiable.
                 </p>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <div class="hero-btns">
                     <a href="./register.html" class="btn btn-primary"
                         style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: 99px;">Empezar Ahora</a>
                     <a href="#funciones" class="btn"
@@ -64,7 +62,7 @@
 
     <!-- Stats -->
     <section class="container" style="margin-bottom: 8rem;">
-        <div class="glass-panel"
+        <div class="glass-panel stats-grid"
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; text-align: center;">
             <div>
                 <span class="stat-number">99.9%</span>
@@ -129,36 +127,34 @@
 
     <!-- Context Image Section -->
     <section class="container" style="margin-bottom: 10rem;">
-        <div class="hero-grid" style="grid-template-columns: 0.8fr 1.2fr;">
+        <div class="hero-grid">
             <div class="hero-image">
                 <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_dashboard.png?raw=true"
                     alt="Dashboard Concept" class="floating-img" style="animation-delay: -3s;">
             </div>
-            <div class="hero-content" id="beneficios">
+            <div class="hero-content" id="beneficios" style="text-align: left;">
                 <h2>Beneficios para Administradores</h2>
                 <div style="margin-top: 2rem;">
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                        <span style="color: var(--success); font-size: 1.5rem;">✓</span>
-                        <div>
-                            <h4 style="margin:0;">Control Total</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem;">Gestiona múltiples ubicaciones y
-                                cientos de clientes desde un solo panel centralizado.</p>
+                    <div class="benefit-item">
+                        <span>✓</span>
+                        <div class="benefit-content">
+                            <h4>Control Total</h4>
+                            <p>Gestiona múltiples ubicaciones y cientos de clientes desde un solo panel centralizado.
+                            </p>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-                        <span style="color: var(--success); font-size: 1.5rem;">✓</span>
-                        <div>
-                            <h4 style="margin:0;">Menos Soporte</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem;">La automatización reduce hasta un
-                                60% las llamadas por incidencias técnicas básicas.</p>
+                    <div class="benefit-item">
+                        <span>✓</span>
+                        <div class="benefit-content">
+                            <h4>Menos Soporte</h4>
+                            <p>La automatización reduce hasta un 60% las llamadas por incidencias técnicas básicas.</p>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem;">
-                        <span style="color: var(--success); font-size: 1.5rem;">✓</span>
-                        <div>
-                            <h4 style="margin:0;">Transparencia</h4>
-                            <p style="color: var(--text-muted); font-size: 0.95rem;">Genera confianza con tus residentes
-                                mediante estados de cuenta y monitoreo abierto.</p>
+                    <div class="benefit-item">
+                        <span>✓</span>
+                        <div class="benefit-content">
+                            <h4>Transparencia</h4>
+                            <p>Genera confianza con tus residentes mediante estados de cuenta y monitoreo abierto.</p>
                         </div>
                     </div>
                 </div>
@@ -214,21 +210,22 @@
     <section class="container" style="margin-bottom: 10rem;">
         <div class="glass-panel" style="background: rgba(255,255,255,0.02); text-align: center; padding: 5rem 2rem;">
             <h2>¿Para quién es FiberHub?</h2>
-            <div class="feature-grid" style="grid-template-columns: repeat(3, 1fr); margin-top: 3rem;">
+            <div class="audience-grid"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-top: 4rem;">
                 <div>
                     <h1 style="margin-bottom: 1rem;">🏢</h1>
-                    <h4>Administradores</h4>
-                    <span style="color: var(--text-muted); font-size: 0.9rem;">Edificios y fraccionamientos</span>
+                    <h3 style="margin-bottom: 0.5rem;">Administradores</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Edificios y fraccionamientos</p>
                 </div>
                 <div>
                     <h1 style="margin-bottom: 1rem;">📡</h1>
-                    <h4>Proveedores</h4>
-                    <span style="color: var(--text-muted); font-size: 0.9rem;">Internet local (WISPs)</span>
+                    <h3 style="margin-bottom: 0.5rem;">Proveedores</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Internet local (WISPs)</p>
                 </div>
                 <div>
                     <h1 style="margin-bottom: 1rem;">💼</h1>
-                    <h4>Negocios</h4>
-                    <span style="color: var(--text-muted); font-size: 0.9rem;">Hoteles, Coworkings y Oficinas</span>
+                    <h3 style="margin-bottom: 0.5rem;">Negocios</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Hoteles, Coworkings y Oficinas</p>
                 </div>
             </div>
         </div>
@@ -241,7 +238,7 @@
             <p style="margin: 1.5rem 0 3rem; font-size: 1.2rem;">Únete a cientos de comunidades que ya gestionan su
                 internet con FiberHub.</p>
 
-            <div style="max-width: 500px; margin: 0 auto; text-align: left;">
+            <div class="contact-form-wrap">
                 <div class="glass-panel" style="padding: 2rem;">
                     <form id="contactForm">
                         <div class="form-group">
@@ -268,18 +265,19 @@
     </section>
 
     <footer class="app-footer" style="padding: 4rem 2rem; border-top: 1px solid var(--glass-border);">
-        <div class="container"
+        <div class="container footer-content"
             style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
-            <div class="logo"><img
-                    src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true"
-                    style="width: 35px; height: 35px; object-fit: contain;" alt="FiberHub Logo" title="FiberHub">
-                FiberHub<span>Residencial</span></div>
+            <div class="footer-logo">
+                <img src="https://github.com/jonathanhdezf/residencialwifi/blob/main/fiberhub_logo_nebula.png?raw=true"
+                    style="width: 35px; height: 35px; object-fit: contain;" alt="FiberHub Logo">
+                FiberHub<span>Residencial</span>
+            </div>
             <div style="color: var(--text-muted);">Creado por Fiberlink Servicios TIC © 2026 | Todos los derechos
                 reservados.</div>
             <div style="display: flex; gap: 1.5rem;">
-                <a href="#" style="color: var(--text-muted);">Twitter</a>
-                <a href="#" style="color: var(--text-muted);">LinkedIn</a>
-                <a href="#" style="color: var(--text-muted);">Instagram</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Twitter</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">LinkedIn</a>
+                <a href="#" style="color: var(--text-muted); text-decoration: none;">Instagram</a>
             </div>
         </div>
     </footer>
@@ -311,17 +309,23 @@
         // Mobile Menu
         const menuToggle = document.getElementById('mobile-menu');
         const navLinks = document.querySelector('.nav-links');
+        const overlay = document.getElementById('menu-overlay');
 
-        menuToggle.addEventListener('click', () => {
+        function toggleMenu() {
             menuToggle.classList.toggle('active');
             navLinks.classList.toggle('active');
-        });
+            overlay.classList.toggle('active');
+        }
+
+        menuToggle.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
 
         // Close menu on link click
         document.querySelectorAll('.nav-links a').forEach(link => {
             link.addEventListener('click', () => {
                 menuToggle.classList.remove('active');
                 navLinks.classList.remove('active');
+                overlay.classList.remove('active');
             });
         });
     </script>

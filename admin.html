@@ -80,18 +80,17 @@
     <!-- Manager Modal -->
     <div id="managerModal" class="modal-overlay">
         <div class="glass-panel modal-content-wrap">
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+            <div class="modal-header">
                 <h3 style="margin: 0;">Gestionar Cliente: <span id="managerTitle"
-                        style="color: var(--primary);">...</span></h3>
+                        style="color: var(--accent);">...</span></h3>
                 <button onclick="closeManager()"
                     style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.2s;">&times;</button>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+            <div class="modal-grid-container">
                 <!-- Left Col: Profile & Control -->
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
-                    <section>
+                    <section class="modal-section">
                         <h4 style="margin-bottom: 0.5rem; color: var(--text-muted);">Perfil</h4>
                         <div class="form-group" style="margin-bottom: 0.5rem;">
                             <label style="font-size: 0.8rem;">Alias</label>
@@ -109,14 +108,14 @@
                         <button onclick="saveProfileChanges()" class="btn btn-primary"
                             style="width: 100%; margin-top: 0.5rem;">Guardar Perfil</button>
 
-                        <div style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                        <div style="margin-top: 1.5rem; border-top: 1px solid var(--glass-border); padding-top: 1rem;">
                             <button onclick="deleteUser()" class="btn"
-                                style="width: 100%; background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5;">⚠️
+                                style="width: 100%; background: rgba(244, 63, 94, 0.1); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3);">⚠️
                                 Eliminar Usuario</button>
                         </div>
                     </section>
 
-                    <section style="border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <section class="modal-section">
                         <h4 style="margin-bottom: 0.5rem; color: var(--text-muted); margin-top: 1rem;">Servicio</h4>
 
                         <div style="margin-top: 1rem;">
@@ -126,7 +125,7 @@
                         </div>
 
                         <!-- WiFi Section -->
-                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+                        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
                             <h5 style="margin: 0 0 1rem 0; color: var(--text-muted);">Configuración WiFi</h5>
                             <div class="form-group" style="margin-bottom: 0.5rem;">
                                 <label style="font-size: 0.8rem;">Identificador WIFI (SSID)</label>
@@ -137,7 +136,7 @@
                                 <div style="display: flex; gap: 0.5rem;">
                                     <input type="text" id="mgrWifiPass" class="form-input" placeholder="WPA2 Key">
                                     <button type="button" onclick="generateRandomPass()" class="btn"
-                                        style="border: 1px solid var(--border); background: transparent;"
+                                        style="border: 1px solid var(--glass-border); background: transparent;"
                                         title="Generar Aleatoria">🎲</button>
                                 </div>
                             </div>
@@ -154,13 +153,13 @@
                         </div>
 
                         <button onclick="saveServiceChanges()" class="btn"
-                            style="width: 100%; margin-top: 0.5rem; background: var(--secondary); color: white;">Actualizar
+                            style="width: 100%; margin-top: 0.5rem; background: var(--accent); color: white;">Actualizar
                             Servicio y WiFi</button>
                     </section>
                 </div>
 
                 <!-- Right Col: History -->
-                <div style="border-left: 1px solid var(--border); padding-left: 2rem;">
+                <div class="modal-secondary-column">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                         <h4 style="margin: 0; color: var(--text-muted);">Historial de Pagos</h4>
@@ -168,10 +167,9 @@
                             class="btn">+ Agregar</button>
                     </div>
 
-                    <div
-                        style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px;">
+                    <div class="history-table-container">
                         <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
-                            <thead style="background: rgba(0,0,0,0.02); position: sticky; top: 0;">
+                            <thead style="background: rgba(0,0,0,0.2); position: sticky; top: 0;">
                                 <tr>
                                     <th style="padding: 0.5rem; text-align: left;">Periodo</th>
                                     <th style="padding: 0.5rem; text-align: left;">Monto</th>
@@ -187,10 +185,10 @@
 
                     <!-- Add/Edit History Form (Hidden by default) -->
                     <div id="historyEditForm"
-                        style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--border);">
+                        style="display: none; margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px solid var(--glass-border);">
                         <h5 style="margin: 0 0 0.5rem 0;">Editar Registro</h5>
                         <input type="hidden" id="histId">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <div class="history-edit-grid">
                             <input type="text" id="histPeriod" placeholder="Periodo (Ej. Enero 2026)" class="form-input"
                                 style="font-size: 0.8rem;">
                             <input type="date" id="histDate" class="form-input"
@@ -248,23 +246,20 @@
         </div>
     </div>
 
-    <!-- Chat Modal -->
     <div id="chatModal" class="modal-overlay">
-        <div class="glass-panel modal-content-wrap"
-            style="max-width: 500px; height: 600px; display: flex; flex-direction: column; padding: 1.5rem;">
+        <div class="glass-panel modal-content-wrap chat-modal-wrap">
             <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
                 <h3 id="chatTitle" style="font-size: 1.1rem; margin: 0;">Chat</h3>
                 <button onclick="closeChat()"
                     style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.2s;">&times;</button>
             </div>
 
-            <div id="chatMessages"
-                style="flex: 1; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; display: flex; flex-direction: column;">
+            <div id="chatMessages" class="chat-body-area">
                 <!-- Messages -->
             </div>
 
-            <form id="adminChatForm" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                <div class="emoji-bar" style="display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.25rem;">
+            <form id="adminChatForm" class="chat-input-form">
+                <div class="emoji-bar">
                     <button type="button" class="admin-emoji"
                         style="background:none; border:none; cursor:pointer; font-size:1.2rem;">😀</button>
                     <button type="button" class="admin-emoji"
@@ -286,9 +281,8 @@
                     <button type="button" class="admin-emoji"
                         style="background:none; border:none; cursor:pointer; font-size:1.2rem;">💬</button>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                    <input type="text" id="adminMsgInput" class="form-input" placeholder="Responder..." required
-                        style="flex: 1;">
+                <div class="chat-input-row">
+                    <input type="text" id="adminMsgInput" class="form-input" placeholder="Responder..." required>
                     <button type="submit" class="btn btn-primary">Enviar</button>
                 </div>
             </form>

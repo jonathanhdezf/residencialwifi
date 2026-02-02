@@ -63,7 +63,7 @@ async function renderResidentList() {
                         </div>
                     </td>
                     <td style="padding: 1rem; border-bottom: 1px solid var(--border);">
-                        <div style="display:flex; flex-direction:column; gap: 0.5rem;">
+                        <div class="table-actions">
                             <button class="btn btn-primary open-chat-btn" data-userid="${user.id}" style="font-size: 0.85rem;">
                                 Mensajes ${profile.messages.filter(m => m.from === 'resident' && !m.read).length ? '🔴' : ''}
                             </button>
