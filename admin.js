@@ -58,16 +58,19 @@ async function renderResidentList() {
                                 ${getStatusText(profile.paymentStatus)}
                             </span>
                             ${(() => {
-                                if (!profile.nextPaymentDate) return '';
-                                try {
-                                    const d = new Date(nextDateStr + 'T12:00:00');
-                                    const mName = d.toLocaleString('es-MX', { month: 'long' });
-                                    const capMonth = mName.charAt(0).toUpperCase() + mName.slice(1);
-                                    return `<span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+          if (!profile.nextPaymentDate) return '';
+          // Only show if Pending or Overdue
+          if (profile.paymentStatus !== 'pending' && profile.paymentStatus !== 'overdue') return '';
+          try {
+            const d = new Date(nextDateStr + 'T12:00:00');
+            d.setMonth(d.getMonth() - 1); // Previous month logic
+            const mName = d.toLocaleString('es-MX', { month: 'long' });
+            const capMonth = mName.charAt(0).toUpperCase() + mName.slice(1);
+            return `<span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
                                         Mes: ${capMonth}
                                     </span>`;
-                                } catch (e) { return ''; }
-                            })()}
+          } catch (e) { return ''; }
+        })()}
                             <span style="font-size: 0.8rem; color: var(--text-muted);">
                                 Vence: ${profile.nextPaymentDate || 'N/A'}
                             </span>
