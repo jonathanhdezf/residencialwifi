@@ -61,15 +61,26 @@ async function loadData() {
     paymentBadge.textContent = getStatusText(profile.paymentStatus);
     paymentBadge.className = `status-badge ${getStatusClass(profile.paymentStatus)}`;
 
-    // Month Display Logic for Resident
-    const monthDisplay = document.getElementById('monthDisplay') || document.createElement('div');
-    if (!document.getElementById('monthDisplay')) {
+    // Month Display Logic for Resident (Stack below badge)
+    let monthDisplay = document.getElementById('monthDisplay');
+    if (!monthDisplay) {
+        monthDisplay = document.createElement('div');
         monthDisplay.id = 'monthDisplay';
-        monthDisplay.style.fontSize = '0.9rem';
+        monthDisplay.style.fontSize = '0.85rem';
         monthDisplay.style.fontWeight = '600';
-        monthDisplay.style.marginBottom = '0.25rem';
+        monthDisplay.style.marginTop = '0.25rem';
         monthDisplay.style.color = 'var(--text-main)';
-        document.getElementById('paymentDate').parentNode.insertBefore(monthDisplay, document.getElementById('paymentDate'));
+
+        // Create wrapper to stack badge and month
+        const wrapper = document.createElement('div');
+        wrapper.style.display = 'flex';
+        wrapper.style.flexDirection = 'column';
+
+        if (paymentBadge.parentNode) {
+            paymentBadge.parentNode.insertBefore(wrapper, paymentBadge);
+            wrapper.appendChild(paymentBadge);
+            wrapper.appendChild(monthDisplay);
+        }
     }
 
     if ((profile.paymentStatus === 'pending' || profile.paymentStatus === 'overdue') && profile.nextPaymentDate) {
