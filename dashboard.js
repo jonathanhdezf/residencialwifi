@@ -380,6 +380,16 @@ async function checkNewMessages() {
     first = false;
 }
 
+function getEffectiveItemStatus(item) {
+    if (item.status === 'paid') return 'paid';
+    if (item.status === 'overdue') return 'overdue';
+    // If pending, check date
+    const dateStr = convertDateForInput(item.date);
+    const d = new Date(dateStr + 'T23:59:59');
+    if (new Date() > d) return 'overdue';
+    return 'pending';
+}
+
 // Helper for date parsing
 function convertDateForInput(dateString) {
     if (!dateString) return new Date().toISOString().split('T')[0];
