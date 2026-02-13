@@ -57,6 +57,17 @@ async function renderResidentList() {
                             <span style="padding: 0.25rem 0.5rem; border-radius: 999px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; background: ${getStatusColor(profile.paymentStatus)}; display: inline-block; width: fit-content;">
                                 ${getStatusText(profile.paymentStatus)}
                             </span>
+                            ${(() => {
+                                if (!profile.nextPaymentDate) return '';
+                                try {
+                                    const d = new Date(nextDateStr + 'T12:00:00');
+                                    const mName = d.toLocaleString('es-MX', { month: 'long' });
+                                    const capMonth = mName.charAt(0).toUpperCase() + mName.slice(1);
+                                    return `<span style="font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+                                        Mes: ${capMonth}
+                                    </span>`;
+                                } catch (e) { return ''; }
+                            })()}
                             <span style="font-size: 0.8rem; color: var(--text-muted);">
                                 Vence: ${profile.nextPaymentDate || 'N/A'}
                             </span>
