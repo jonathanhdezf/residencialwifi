@@ -283,22 +283,13 @@ window.saveHistoryItem = async () => {
   renderManagerHistory(updatedProfile.paymentHistory);
   document.getElementById('historyEditForm').style.display = 'none';
 
-  // Auto-sync status
-  if (updatedProfile.paymentHistory && updatedProfile.paymentHistory.length > 0) {
-    const latest = updatedProfile.paymentHistory[0];
-    let finalStatus = latest.status;
-    if (finalStatus === 'pending') {
-      const check = new Date(latest.date + 'T23:59:59');
-      if (new Date() > check) finalStatus = 'overdue';
-    }
-    const updates = { paymentStatus: finalStatus };
-    if (!id) {
-      const nextDateStr = getNextMonthDate(latest.date);
-      updates.nextPaymentDate = formatDateToSpanish(nextDateStr);
-    }
-    await dbData.updateProfile(currentManagerUserId, updates);
-    notify.success('Sincronizado: ' + getStatusText(finalStatus));
+  // Auto-sync status and dates
+  await recalculateProfileStatus(currentManagerUserId);
+  const finalProfile = await dbData.getProfile(currentManagerUserId);
+  if (finalProfile.paymentHistory) {
+    renderManagerHistory(finalProfile.paymentHistory);
   }
+  notify.success('Registro guardado y estado actualizado');
   renderResidentList();
 };
 
@@ -318,8 +309,12 @@ window.editHistoryItem = async (itemId) => {
 window.deleteHistoryItem = async (itemId) => {
   if (confirm('¿Borrar este registro?')) {
     await dbData.deleteHistoryItem(currentManagerUserId, itemId);
+    await recalculateProfileStatus(currentManagerUserId); // Recalculate after delete
+
     const p = await dbData.getProfile(currentManagerUserId);
     renderManagerHistory(p.paymentHistory);
+    renderResidentList(); // Update main table
+    notify.success('Registro eliminado');
   }
 };
 
@@ -441,6 +436,44 @@ function getNextMonthDate(dateStr) {
 function formatDateToSpanish(dateStr) {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d).toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
+async function recalculateProfileStatus(userId) {
+  const profile = await dbData.getProfile(userId);
+  const history = profile.paymentHistory || [];
+
+  if (history.length === 0) return;
+
+  // Sort by date descending (newest first)
+  const sorted = [...history].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const lastPayment = sorted[0];
+
+  if (!lastPayment) return;
+
+  // Next payment date is 1 month after the last payment date
+  const nextDateRaw = getNextMonthDate(lastPayment.date);
+  const nextDateFormatted = formatDateToSpanish(nextDateRaw);
+
+  // Determine status logic
+  let newStatus = 'paid';
+  const today = new Date();
+  // We compare today vs the calculated next payment date
+  // If we are PAST the next payment date, it is Overdue.
+  const nextDateObj = new Date(nextDateRaw + 'T23:59:59');
+
+  if (today > nextDateObj) {
+    newStatus = 'overdue';
+  } else if (lastPayment.status === 'pending') {
+    // If the LAST recorded payment is pending, then status is pending
+    // (Unless it's already overdue based on date, which is caught above? 
+    //  Actually, if last payment is pending, usually means the current month is pending)
+    newStatus = 'pending';
+  }
+
+  await dbData.updateProfile(userId, {
+    paymentStatus: newStatus,
+    nextPaymentDate: nextDateFormatted
+  });
 }
 
 // Polling
