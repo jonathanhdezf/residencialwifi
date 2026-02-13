@@ -60,6 +60,34 @@ async function loadData() {
     const paymentBadge = document.getElementById('paymentStatus');
     paymentBadge.textContent = getStatusText(profile.paymentStatus);
     paymentBadge.className = `status-badge ${getStatusClass(profile.paymentStatus)}`;
+
+    // Month Display Logic for Resident
+    const monthDisplay = document.getElementById('monthDisplay') || document.createElement('div');
+    if (!document.getElementById('monthDisplay')) {
+        monthDisplay.id = 'monthDisplay';
+        monthDisplay.style.fontSize = '0.9rem';
+        monthDisplay.style.fontWeight = '600';
+        monthDisplay.style.marginBottom = '0.25rem';
+        monthDisplay.style.color = 'var(--text-main)';
+        document.getElementById('paymentDate').parentNode.insertBefore(monthDisplay, document.getElementById('paymentDate'));
+    }
+
+    if ((profile.paymentStatus === 'pending' || profile.paymentStatus === 'overdue') && profile.nextPaymentDate) {
+        try {
+            const nextDateStr = convertDateForInput(profile.nextPaymentDate);
+            const d = new Date(nextDateStr + 'T12:00:00');
+            d.setMonth(d.getMonth() - 1); // Previous month logic
+            const mName = d.toLocaleString('es-MX', { month: 'long' });
+            const capMonth = mName.charAt(0).toUpperCase() + mName.slice(1);
+            monthDisplay.textContent = `Mes: ${capMonth}`;
+            monthDisplay.style.display = 'block';
+        } catch (e) {
+            monthDisplay.style.display = 'none';
+        }
+    } else {
+        monthDisplay.style.display = 'none';
+    }
+
     document.getElementById('paymentDate').textContent = profile.nextPaymentDate || 'Pendiente';
 
     // Speed Display
@@ -338,6 +366,16 @@ async function checkNewMessages() {
     }
     lastCount = current;
     first = false;
+}
+
+// Helper for date parsing
+function convertDateForInput(dateString) {
+    if (!dateString) return new Date().toISOString().split('T')[0];
+    if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) return dateString;
+    const months = { 'enero': '01', 'febrero': '02', 'marzo': '03', 'abril': '04', 'mayo': '05', 'junio': '06', 'julio': '07', 'agosto': '08', 'septiembre': '09', 'octubre': '10', 'noviembre': '11', 'diciembre': '12' };
+    const parts = dateString.toLowerCase().match(/(\d{1,2}) de ([a-z]+)[,]?(?: de)? (\d{4})/);
+    if (parts) return `${parts[3]}-${months[parts[2]]}-${parts[1].padStart(2, '0')}`;
+    return new Date().toISOString().split('T')[0];
 }
 
 loadData();
