@@ -156,18 +156,19 @@ document.getElementById('viewHistoryBtn').addEventListener('click', async (e) =>
     tbody.innerHTML = '';
 
     profile.paymentHistory?.forEach(item => {
+        const effectiveStatus = getEffectiveItemStatus(item);
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border);">${item.period}</td>
             <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border);">${item.date}</td>
             <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border);">${item.amount}</td>
             <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border);">
-                <span class="status-badge ${getStatusClass(item.status)}" style="font-size: 0.75rem; padding: 0.1rem 0.5rem;">
-                    ${getStatusText(item.status)}
+                <span class="status-badge ${getStatusClass(effectiveStatus)}" style="font-size: 0.75rem; padding: 0.1rem 0.5rem;">
+                    ${getStatusText(effectiveStatus)}
                 </span>
             </td>
             <td style="padding: 0.75rem 0.5rem; border-bottom: 1px solid var(--border); text-align: center;">
-                <button class="download-receipt-btn" data-period="${item.period}" data-date="${item.date}" data-amount="${item.amount}" data-status="${item.status}" style="background: none; border: none; color: var(--accent); cursor: pointer;">📥</button>
+                <button class="download-receipt-btn" data-period="${item.period}" data-date="${item.date}" data-amount="${item.amount}" data-status="${effectiveStatus}" style="background: none; border: none; color: var(--accent); cursor: pointer;">📥</button>
             </td>
         `;
         tbody.appendChild(tr);
@@ -180,7 +181,7 @@ document.getElementById('viewHistoryBtn').addEventListener('click', async (e) =>
                 period: btn.dataset.period,
                 date: btn.dataset.date,
                 amount: btn.dataset.amount,
-                status: btn.dataset.status
+                status: btn.dataset.status // This will now carry the effective status
             });
         });
         tbody.setAttribute('data-listener', 'true');
